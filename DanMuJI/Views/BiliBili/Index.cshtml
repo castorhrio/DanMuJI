@@ -1,0 +1,115 @@
+﻿
+@{
+    ViewBag.Title = "B站弹幕姬";
+}
+
+<style>
+    .p{
+        margin-top:10px;
+    }
+</style>
+
+<form>
+    <div class="row mb-4">
+        <label class="col-sm-2 col-form-label">请设置Cookie:</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="cookie_str">
+        </div>
+    </div>
+    <div class="row mb-4">
+        <label class="col-sm-2 col-form-label">请输入直播间ID:</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="live_id">
+        </div>
+    </div>
+    <div class="row mb-4">
+        <label class="col-sm-2 col-form-label">请输入弹幕内容:</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="msg">
+        </div>
+    </div>
+    <div class="row mb-4">
+        <label class="col-sm-2 col-form-label">请输入弹幕持续时间:</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="time">
+        </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="start()">开始</button>
+    <button class="btn btn-primary" onclick="cancle()">停止</button>
+</form>
+
+<div id="result" class="row" style="margin-top:10px;">
+</div>
+
+@section scripts{
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+        $(function () {
+            var hub = $.connection.signalRHub;
+            hub.client.getMessage = function (flag, message) {
+                var content = "";
+                if (flag === "success") {
+                    content = "<p class='text-success'>" + htmlEncode(message) + "</p > "
+                } else if (flag === "failed") {
+                    content = "<p class='text-warning'>" + htmlEncode(message) + "</p > "
+                } else {
+                    content = "<p class='text-danger'>" + htmlEncode(message) + "</p > "
+                }
+                $("#result").append(content);
+            }
+
+            $.connection.hub.start().done(function () {
+
+            });
+        });
+
+        function htmlEncode(str) {
+            var encoderStr = $('<div />').text(str).html();
+            return encoderStr;
+        }
+
+        function start() {
+            var live_id = $("#live_id").val();
+            var msg = $("#msg").val();
+            var time = $("#time").val();
+            var cookie = $("#cookie_str").val();
+
+            if (live_id === "" || live_id === null) {
+                alert("直播间id不能为空");
+                return;
+            }
+
+            if (msg === "" || msg === null) {
+                alert("弹幕内容不能为空");
+                return;
+            }
+
+            if (cookie === "" || cookie === null) {
+                alert("Cookie不能为空");
+                return;
+            }
+
+            $.ajax({
+                url: "@Url.Action("SendMsg","BiliBili")",
+                type: 'POST',
+                data: {
+                    live_id: live_id,
+                    msg: msg,
+                    time: time,
+                    cookie: cookie
+                },
+                success: function (result) {
+                    if (result.code != 1) {
+                        alert(result.msg);
+                    }
+                },
+                error: function (result) {
+                    alert(result);
+                }
+            });
+        }
+    </script>
+}
