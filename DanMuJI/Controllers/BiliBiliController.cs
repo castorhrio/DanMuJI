@@ -118,7 +118,6 @@ namespace DanMuJI.Controllers
                             hub.SendMsg("success", $"第 {i} 次弹幕发送成功！弹幕内容：{PUTONGDANMU[danmu_index]}");
                             continue;
                         }
-
                         else if (return_model.code == "10031" || return_model.code == "10030")   //发送频繁
                         {
                             int sleep_time_index = random.Next(SLEEP_ARRAY.Length);
@@ -134,6 +133,12 @@ namespace DanMuJI.Controllers
                             return Json(result, JsonRequestBehavior.AllowGet);
                         }
                     }
+                    else
+                    {
+                        hub.SendMsg("error", $"发送弹幕失败! 失败内容: {response}");
+                    }
+
+                    i++;
                 }
 
                 result.code = 1;
