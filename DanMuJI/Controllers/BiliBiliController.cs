@@ -86,8 +86,7 @@ namespace DanMuJI.Controllers
                 Random random = new Random();
                 SignalRHub hub = new SignalRHub();
 
-                int i = 1;
-                while (DateTime.Now < end_time && flag)
+                for (int i=1; DateTime.Now < end_time && flag;i++)
                 {
                     Dictionary<string, string> dic = new Dictionary<string, string>();
                     dic["bubble"] = "0";
@@ -137,8 +136,6 @@ namespace DanMuJI.Controllers
                     {
                         hub.SendMsg("error", $"发送弹幕失败! 失败内容: {response}");
                     }
-
-                    i++;
                 }
 
                 result.code = 1;
